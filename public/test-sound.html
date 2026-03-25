@@ -112,10 +112,10 @@
       <div class="card">
         <h3>Características do Som</h3>
         <div class="info">
-          ✓ Frequência: 800 Hz<br/>
-          ✓ Duração: 200ms<br/>
-          ✓ Volume: 30%<br/>
-          ✓ Tipo: Onda senoidal<br/>
+          ✓ Frequência: 800 Hz + 1200 Hz (estilo MSN)<br/>
+          ✓ Duração: 150ms + 150ms<br/>
+          ✓ Volume: 60%<br/>
+          ✓ Tipo: Onda senoidal dupla<br/>
           ✓ Compatibilidade: Navegadores com Web Audio API
         </div>
       </div>
@@ -133,22 +133,34 @@
       function playBeep() {
         try {
           var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          var oscillator = audioContext.createOscillator();
-          var gainNode = audioContext.createGain();
+          
+          // Primeira nota (som do MSN)
+          var osc1 = audioContext.createOscillator();
+          var gain1 = audioContext.createGain();
+          osc1.connect(gain1);
+          gain1.connect(audioContext.destination);
+          osc1.frequency.value = 800;
+          osc1.type = "sine";
+          gain1.gain.setValueAtTime(0.6, audioContext.currentTime);
+          gain1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+          osc1.start(audioContext.currentTime);
+          osc1.stop(audioContext.currentTime + 0.15);
+          
+          // Segunda nota (som do MSN - nota mais alta)
+          setTimeout(function() {
+            var osc2 = audioContext.createOscillator();
+            var gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 1200;
+            osc2.type = "sine";
+            gain2.gain.setValueAtTime(0.6, audioContext.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            osc2.start(audioContext.currentTime);
+            osc2.stop(audioContext.currentTime + 0.15);
+          }, 150);
 
-          oscillator.connect(gainNode);
-          gainNode.connect(audioContext.destination);
-
-          oscillator.frequency.value = 800;
-          oscillator.type = "sine";
-
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.2);
-
-          showFeedback("✓ Som tocado com sucesso!");
+          showFeedback("✓ Som do MSN tocado com sucesso!");
         } catch (e) {
           showFeedback("✗ Erro: Web Audio API não disponível", false);
           console.log("Error:", e);
