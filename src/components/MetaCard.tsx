@@ -41,10 +41,8 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
   };
 
   const getLabel = () => {
-    if (percent >= 100) return "Meta atingida! 🎉";
-    if (percent >= 80) return "Quase lá!";
-    if (percent >= 50) return "Em progresso";
-    return "Atenção — meta distante";
+    if (percent >= 100) return "Meta alcançada! 🎉";
+    return "Estamos quase lá";
   };
 
   return (
@@ -68,7 +66,7 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
           <p className="text-sm xl:text-base text-muted-foreground font-medium flex items-center gap-1.5">
             {percent >= 100 ? (
               <>
-                <span>Meta atingida!</span>
+                <span>Meta alcançada!</span>
                 <span className="text-lg leading-none">🎉</span>
               </>
             ) : (
