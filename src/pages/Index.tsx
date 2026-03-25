@@ -15,12 +15,15 @@ import {
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
+const AUDIO_ENABLED_STORAGE_KEY = "kpis-audio-enabled";
+
 const Index = () => {
   const previousMetaSnapshotRef = useRef<MetaRecord | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hideNoticeTimerRef = useRef<number | null>(null);
   const [showMetaUpdateNotice, setShowMetaUpdateNotice] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
+  const [hasAudioPreference, setHasAudioPreference] = useState(false);
 
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
@@ -60,11 +63,22 @@ const Index = () => {
     return context;
   };
 
-  const unlockAudio = () => {
+  const unlockAudio = (persistPreference = false) => {
     const context = getAudioContext();
     if (!context) return;
 
-    const afterResume = () => setIsAudioReady(context.state === "running");
+    const afterResume = () => {
+      const running = context.state === "running";
+      setIsAudioReady(running);
+      if (persistPreference && running) {
+        setHasAudioPreference(true);
+        try {
+          localStorage.setItem(AUDIO_ENABLED_STORAGE_KEY, "1");
+        } catch {
+          // Em modo privado pode falhar, sem impedir o funcionamento do app.
+        }
+      }
+    };
 
     if (context.state === "suspended") {
       void context.resume().then(afterResume).catch(() => undefined);
@@ -118,6 +132,12 @@ const Index = () => {
   };
 
   useEffect(() => {
+    try {
+      setHasAudioPreference(localStorage.getItem(AUDIO_ENABLED_STORAGE_KEY) === "1");
+    } catch {
+      setHasAudioPreference(false);
+    }
+
     const onUserInteraction = () => unlockAudio();
     window.addEventListener("pointerdown", onUserInteraction, { passive: true });
     window.addEventListener("keydown", onUserInteraction);
@@ -165,10 +185,10 @@ const Index = () => {
         </div>
       )}
 
-      {!isAudioReady && (
+      {!isAudioReady && !hasAudioPreference && (
         <button
           type="button"
-          onClick={unlockAudio}
+          onClick={() => unlockAudio(true)}
           className="fixed bottom-6 right-6 z-50 rounded-lg border border-amber-400 bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950 shadow-lg"
         >
           Ativar som
