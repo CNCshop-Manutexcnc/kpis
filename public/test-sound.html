@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teste de Som - KPIs Eletronica</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      .wrap {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .head {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-top: 4px solid #22c55e;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+      .title {
+        margin: 0;
+        font-size: 28px;
+        color: #f8fafc;
+      }
+      .sub {
+        margin: 8px 0 0;
+        color: #94a3b8;
+        font-size: 14px;
+      }
+      .card {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+      .card h3 {
+        margin: 0 0 16px;
+        color: #f8fafc;
+        font-size: 18px;
+      }
+      .button-group {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #22c55e;
+        color: #0f172a;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background: #16a34a;
+      }
+      button:active {
+        transform: scale(0.95);
+      }
+      .info {
+        background: #1e3a5f;
+        border: 1px solid #3b5998;
+        border-left: 4px solid #3b82f6;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #bfdbfe;
+      }
+      .success {
+        background: #1b4d2d;
+        border-color: #22c55e;
+        border-left-color: #22c55e;
+        color: #86efac;
+      }
+      .label {
+        font-size: 14px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="head">
+        <h1 class="title">🔊 Teste de Som</h1>
+        <p class="sub">Teste a notificação de som da TV</p>
+      </div>
+
+      <div class="card">
+        <h3>Toque de Notificação</h3>
+        <div class="label">Som que toca quando a meta muda</div>
+        <div class="button-group">
+          <button onclick="playBeep()">Tocar Som</button>
+          <button onclick="playBeepDouble()">Tocar 2x (Duplo)</button>
+        </div>
+        <div id="feedback" class="info" style="display: none;"></div>
+      </div>
+
+      <div class="card">
+        <h3>Características do Som</h3>
+        <div class="info">
+          ✓ Frequência: 800 Hz<br/>
+          ✓ Duração: 200ms<br/>
+          ✓ Volume: 30%<br/>
+          ✓ Tipo: Onda senoidal<br/>
+          ✓ Compatibilidade: Navegadores com Web Audio API
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Como Funciona na TV</h3>
+        <div class="info">
+          A meta na TV é atualizada a cada 1 minuto.<br/>
+          Quando o valor muda (ex: 45% → 50%), o som toca automaticamente.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function playBeep() {
+        try {
+          var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          var oscillator = audioContext.createOscillator();
+          var gainNode = audioContext.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+
+          oscillator.frequency.value = 800;
+          oscillator.type = "sine";
+
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.2);
+
+          showFeedback("✓ Som tocado com sucesso!");
+        } catch (e) {
+          showFeedback("✗ Erro: Web Audio API não disponível", false);
+          console.log("Error:", e);
+        }
+      }
+
+      function playBeepDouble() {
+        playBeep();
+        setTimeout(function () {
+          playBeep();
+        }, 300);
+      }
+
+      function showFeedback(msg, success) {
+        if (success === undefined) success = true;
+        var el = document.getElementById("feedback");
+        el.innerHTML = msg;
+        el.className = success ? "info success" : "info";
+        el.style.display = "block";
+
+        setTimeout(function () {
+          el.style.display = "none";
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
