@@ -17,13 +17,13 @@ const Index = () => {
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
     queryFn: fetchOSData,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   });
 
   const { data: metaData } = useQuery<MetaRecord>({
     queryKey: ["metaData"],
     queryFn: fetchMetaData,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 60 * 1000,
   });
 
   const total = osData.length;

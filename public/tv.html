@@ -406,7 +406,8 @@
 
         function xhrGet(url, onOk, onErr) {
           var xhr = new XMLHttpRequest();
-          xhr.open("GET", url, true);
+          var cacheBustedUrl = url + (url.indexOf("?") >= 0 ? "&" : "?") + "_ts=" + new Date().getTime();
+          xhr.open("GET", cacheBustedUrl, true);
           xhr.onreadystatechange = function () {
             if (xhr.readyState !== 4) return;
             if (xhr.status >= 200 && xhr.status < 300) {
@@ -547,7 +548,7 @@
         }
 
         refreshAll();
-        setInterval(refreshAll, 5 * 60 * 1000);
+        setInterval(refreshAll, 60 * 1000);
       })();
     </script>
   </body>

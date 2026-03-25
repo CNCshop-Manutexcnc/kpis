@@ -35,13 +35,18 @@ export interface MetaRecord {
   atual: number;
 }
 
+function withCacheBuster(url: string): string {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}_ts=${Date.now()}`;
+}
+
 function parseNumber(str: string): number {
   // handles "435.750,00" → 435750.00
   return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
 }
 
 export async function fetchMetaData(): Promise<MetaRecord> {
-  const res = await fetch(META_CSV_URL);
+  const res = await fetch(withCacheBuster(META_CSV_URL), { cache: "no-store" });
   const text = await res.text();
   console.log("META CSV raw:", text);
   const lines = text.split("\n").filter(l => l.trim());
@@ -85,7 +90,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 export async function fetchOSData(): Promise<OSRecord[]> {
-  const res = await fetch(SHEET_CSV_URL);
+  const res = await fetch(withCacheBuster(SHEET_CSV_URL), { cache: "no-store" });
   const text = await res.text();
   const lines = text.split("\n").filter(l => l.trim());
   // skip header
