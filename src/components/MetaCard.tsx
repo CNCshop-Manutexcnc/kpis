@@ -45,6 +45,11 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
     return "Estamos quase lá";
   };
 
+  const getLabelClass = () => {
+    if (percent >= 100) return "text-success";
+    return "text-accent";
+  };
+
   return (
     <div className="relative overflow-hidden rounded-lg bg-card border border-border p-6 xl:p-8 animate-slide-up group hover:border-primary/30 transition-colors col-span-1 sm:col-span-2">
       {showConfetti && (
@@ -63,7 +68,7 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
           <p className="text-3xl xl:text-5xl font-bold font-mono text-foreground">
             {percent.toFixed(1)}%
           </p>
-          <p className="text-sm xl:text-base text-muted-foreground font-medium flex items-center gap-1.5">
+          <p className={`text-sm xl:text-base font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
             {percent >= 100 ? (
               <>
                 <span>Meta alcançada!</span>
