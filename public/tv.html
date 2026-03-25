@@ -136,6 +136,29 @@
         z-index: 9999;
       }
 
+      .meta-updated {
+        position: fixed;
+        right: 24px;
+        top: 24px;
+        background: #14532d;
+        color: #dcfce7;
+        border: 1px solid #22c55e;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 22px;
+        font-weight: bold;
+        opacity: 0;
+        visibility: hidden;
+        -webkit-transition: opacity 0.25s ease;
+        transition: opacity 0.25s ease;
+        z-index: 10001;
+      }
+
+      .meta-updated.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
       .confetti {
         position: absolute;
         top: -20px;
@@ -226,6 +249,7 @@
     </div>
 
     <div id="confettiLayer" class="confetti-layer"></div>
+    <div id="metaUpdated" class="meta-updated">Meta atualizada 🔔</div>
 
     <script>
       (function () {
@@ -240,6 +264,7 @@
         var confettiPieces = [];
         var confettiColors = ["#22c55e", "#38bdf8", "#f59e0b", "#f43f5e", "#a78bfa", "#f8fafc"];
         var previousMetaSnapshot = null;
+        var metaUpdatedTimer = null;
 
         function getViewportWidth() {
           return window.innerWidth || document.documentElement.clientWidth || 1280;
@@ -426,6 +451,19 @@
           }
         }
 
+        function showMetaUpdatedNotice() {
+          var el = document.getElementById("metaUpdated");
+          if (!el) return;
+          el.className = "meta-updated show";
+          if (metaUpdatedTimer) {
+            clearTimeout(metaUpdatedTimer);
+          }
+          metaUpdatedTimer = setTimeout(function () {
+            el.className = "meta-updated";
+            metaUpdatedTimer = null;
+          }, 2000);
+        }
+
         function setError(msg) {
           var el = document.getElementById("error");
           if (!el) return;
@@ -562,6 +600,7 @@
                   Math.abs(atual - previousMetaSnapshot.atual) > 0.0001)
               ) {
                 playBeep();
+                showMetaUpdatedNotice();
               }
               previousMetaSnapshot = { meta: meta, atual: atual };
 
