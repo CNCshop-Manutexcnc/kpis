@@ -15,15 +15,11 @@ import {
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
-const AUDIO_ENABLED_STORAGE_KEY = "kpis-audio-enabled";
-
 const Index = () => {
   const previousMetaSnapshotRef = useRef<MetaRecord | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hideNoticeTimerRef = useRef<number | null>(null);
   const [showMetaUpdateNotice, setShowMetaUpdateNotice] = useState(false);
-  const [isAudioReady, setIsAudioReady] = useState(false);
-  const [hasAudioPreference, setHasAudioPreference] = useState(false);
 
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
@@ -59,25 +55,15 @@ const Index = () => {
 
     const context = new AudioCtx();
     audioContextRef.current = context;
-    setIsAudioReady(context.state === "running");
     return context;
   };
 
-  const unlockAudio = (persistPreference = false) => {
+  const unlockAudio = () => {
     const context = getAudioContext();
     if (!context) return;
 
     const afterResume = () => {
-      const running = context.state === "running";
-      setIsAudioReady(running);
-      if (persistPreference && running) {
-        setHasAudioPreference(true);
-        try {
-          localStorage.setItem(AUDIO_ENABLED_STORAGE_KEY, "1");
-        } catch {
-          // Em modo privado pode falhar, sem impedir o funcionamento do app.
-        }
-      }
+      // Contexto pronto para tocar som quando houver atualização de meta.
     };
 
     if (context.state === "suspended") {
@@ -132,11 +118,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    try {
-      setHasAudioPreference(localStorage.getItem(AUDIO_ENABLED_STORAGE_KEY) === "1");
-    } catch {
-      setHasAudioPreference(false);
-    }
+    unlockAudio();
 
     const onUserInteraction = () => unlockAudio();
     window.addEventListener("pointerdown", onUserInteraction, { passive: true });
@@ -183,16 +165,6 @@ const Index = () => {
         <div className="fixed top-6 right-6 z-50 rounded-lg border border-green-500 bg-green-900/90 px-4 py-3 text-sm font-semibold text-green-100 shadow-lg backdrop-blur">
           Meta atualizada 🔔
         </div>
-      )}
-
-      {!isAudioReady && !hasAudioPreference && (
-        <button
-          type="button"
-          onClick={() => unlockAudio(true)}
-          className="fixed bottom-6 right-6 z-50 rounded-lg border border-amber-400 bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950 shadow-lg"
-        >
-          Ativar som
-        </button>
       )}
 
       {/* Header */}
