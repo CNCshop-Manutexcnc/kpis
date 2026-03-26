@@ -75,35 +75,13 @@ const Index = () => {
   };
 
   const playMetaUpdatedSound = () => {
-    const context = getAudioContext();
-    if (!context) return;
-
-    if (context.state === "suspended") {
-      void context.resume().catch(() => undefined);
+    try {
+      const audio = new Audio("/notification.mp3");
+      audio.volume = 0.7;
+      void audio.play();
+    } catch {
+      // Falha de áudio sem impedir funcionamento do app
     }
-
-    const playTone = (startOffset: number, frequency: number, duration: number, gainLevel: number) => {
-      const osc = context.createOscillator();
-      const gain = context.createGain();
-      const startAt = context.currentTime + startOffset;
-      const endAt = startAt + duration;
-
-      osc.connect(gain);
-      gain.connect(context.destination);
-
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(frequency, startAt);
-      gain.gain.setValueAtTime(0.001, startAt);
-      gain.gain.exponentialRampToValueAtTime(gainLevel, startAt + 0.018);
-      gain.gain.exponentialRampToValueAtTime(0.001, endAt);
-
-      osc.start(startAt);
-      osc.stop(endAt + 0.01);
-    };
-
-    playTone(0.0, 880, 0.11, 0.85);
-    playTone(0.12, 1046, 0.11, 0.85);
-    playTone(0.24, 1318, 0.16, 0.9);
   };
 
   const showVisualNotice = () => {
