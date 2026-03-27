@@ -1,4 +1,4 @@
-import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
+import { Wrench, ClipboardList, RefreshCw, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -20,6 +20,8 @@ const Index = () => {
   const previousMetaSnapshotRef = useRef<MetaRecord | null>(null);
   const previousOSCountRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioPrimedRef = useRef(false);
   const hideNoticeTimerRef = useRef<number | null>(null);
   const [showMetaUpdateNotice, setShowMetaUpdateNotice] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
@@ -47,7 +49,7 @@ const Index = () => {
     ? new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
     : "—";
 
-  const getAudioContext = () => {
+  const getAudioContext = useCallback(() => {
     if (audioContextRef.current) return audioContextRef.current;
 
     const AudioCtx =
@@ -59,33 +61,81 @@ const Index = () => {
     const context = new AudioCtx();
     audioContextRef.current = context;
     return context;
-  };
+  }, []);
 
-  const unlockAudio = useCallback(() => {
+  const unlockAudio = useCallback(async () => {
     const context = getAudioContext();
     if (!context) return;
 
-    const afterResume = () => {
-      // Contexto pronto para tocar som quando houver atualização de meta.
-    };
-
     if (context.state === "suspended") {
-      void context.resume().then(afterResume).catch(() => undefined);
-      return;
+      try {
+        await context.resume();
+      } catch {
+        // Pode falhar se ainda nao houver gesto do usuario.
+      }
     }
+  }, [getAudioContext]);
 
-    afterResume();
+  const primeNotificationAudio = useCallback(async () => {
+    if (audioPrimedRef.current) return;
+
+    const audio = notificationAudioRef.current;
+    if (!audio) return;
+
+    await unlockAudio();
+
+    try {
+      audio.muted = true;
+      audio.currentTime = 0;
+      await audio.play();
+      audio.pause();
+      audio.currentTime = 0;
+      audio.muted = false;
+      audioPrimedRef.current = true;
+    } catch {
+      audio.muted = false;
+    }
+  }, [unlockAudio]);
+
+  const playFallbackTone = useCallback(() => {
+    const context = getAudioContext();
+    if (!context || context.state !== "running") return;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.value = 0.04;
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.15);
   }, []);
 
-  const playMetaUpdatedSound = () => {
+  const playMetaUpdatedSound = useCallback(async () => {
+    const src = `${import.meta.env.BASE_URL}notification.mp3`;
+    const audio = notificationAudioRef.current ?? new Audio(src);
+    notificationAudioRef.current = audio;
+    audio.volume = 0.7;
+    audio.preload = "auto";
+
     try {
-      const audio = new Audio("/notification.mp3");
-      audio.volume = 0.7;
-      void audio.play();
+      await unlockAudio();
+      audio.currentTime = 0;
+      await audio.play();
     } catch {
-      // Falha de áudio sem impedir funcionamento do app
+      // Se autoplay for bloqueado, usa tom curto via AudioContext como fallback.
+      playFallbackTone();
     }
-  };
+  }, [playFallbackTone, unlockAudio]);
+
+  const handleTestSound = useCallback(() => {
+    void primeNotificationAudio().then(() => playMetaUpdatedSound());
+    toast.success("Teste de som executado.", {
+      description: "Se nao ouvir, clique novamente para liberar audio no navegador.",
+    });
+  }, [playMetaUpdatedSound, primeNotificationAudio]);
 
   const showUpdateNotice = (message: string) => {
     setUpdateMessage(message);
@@ -100,22 +150,26 @@ const Index = () => {
   };
 
   const notifyUpdate = useCallback((message: string, description: string) => {
-    try {
-      playMetaUpdatedSound();
-    } catch {
-      // Em alguns navegadores o autoplay pode ser bloqueado sem interação do usuário.
-    }
+    void playMetaUpdatedSound();
     showUpdateNotice(message);
     toast.success(message, {
       duration: 10000,
       description,
     });
-  }, []);
+  }, [playMetaUpdatedSound]);
 
   useEffect(() => {
-    unlockAudio();
+    const src = `${import.meta.env.BASE_URL}notification.mp3`;
+    const audio = new Audio(src);
+    audio.preload = "auto";
+    audio.volume = 0.7;
+    notificationAudioRef.current = audio;
 
-    const onUserInteraction = () => unlockAudio();
+    void primeNotificationAudio();
+
+    const onUserInteraction = () => {
+      void primeNotificationAudio();
+    };
     window.addEventListener("pointerdown", onUserInteraction, { passive: true });
     window.addEventListener("keydown", onUserInteraction);
 
@@ -125,8 +179,10 @@ const Index = () => {
       if (hideNoticeTimerRef.current) {
         window.clearTimeout(hideNoticeTimerRef.current);
       }
+      notificationAudioRef.current = null;
+      audioPrimedRef.current = false;
     };
-  }, [unlockAudio]);
+  }, [primeNotificationAudio]);
 
   useEffect(() => {
     if (!metaData) return;
@@ -144,12 +200,8 @@ const Index = () => {
     const atualChanged = Math.abs(metaData.atual - previous.atual) >= 0.01;
 
     if (metaChanged || atualChanged) {
-      const changes = [];
-      if (metaChanged) changes.push(`meta: ${previous.meta.toFixed(2)} → ${metaData.meta.toFixed(2)}`);
-      if (atualChanged) changes.push(`atual: ${previous.atual.toFixed(2)} → ${metaData.atual.toFixed(2)}`);
-      
-      notifyUpdate("Meta atualizada 🔔", `Mudança: ${changes.join(", ")}`);
-      console.log("Meta mudou:", { previous, atual: metaData, changes });
+      notifyUpdate("Meta atualizada 🔔", "A planilha de meta foi atualizada.");
+      console.log("Meta mudou:", { previous, atual: metaData, metaChanged, atualChanged });
     }
 
     previousMetaSnapshotRef.current = { meta: metaData.meta, atual: metaData.atual };
@@ -169,9 +221,7 @@ const Index = () => {
 
     // Detecta mudanças no número total de OS ou nos status
     if (osData.length !== previous) {
-      const change = osData.length > previous ? "adicionada" : "removida";
-      const diff = Math.abs(osData.length - previous);
-      notifyUpdate("Planilha atualizada 📋", `${diff} OS ${change}${diff > 1 ? "s" : ""}`);
+      notifyUpdate("Planilha atualizada 📋", "A planilha de OS foi atualizada.");
       console.log("OS data mudou:", { anterior: previous, agora: osData.length });
     }
 
@@ -200,6 +250,14 @@ const Index = () => {
             <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full opacity-75">
               v{VERSION}
             </span>
+            <button
+              type="button"
+              onClick={handleTestSound}
+              className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary/80"
+            >
+              <Volume2 className="h-3.5 w-3.5" />
+              Testar som
+            </button>
             <span className="text-sm text-muted-foreground">
               Últ. atualização: {lastUpdate}
             </span>
