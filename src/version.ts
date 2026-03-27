@@ -1,2 +1,2 @@
 // Atualizar manualmente com cada commit/release
-export const VERSION = "0.0.0";
+export const VERSION = "1.3.5";
