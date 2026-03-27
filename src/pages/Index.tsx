@@ -1,5 +1,5 @@
 import { Wrench, ClipboardList, RefreshCw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { KpiCard } from "@/components/KpiCard";
@@ -17,9 +17,11 @@ import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
   const previousMetaSnapshotRef = useRef<MetaRecord | null>(null);
+  const previousOSCountRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const hideNoticeTimerRef = useRef<number | null>(null);
   const [showMetaUpdateNotice, setShowMetaUpdateNotice] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
 
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
@@ -58,7 +60,7 @@ const Index = () => {
     return context;
   };
 
-  const unlockAudio = () => {
+  const unlockAudio = useCallback(() => {
     const context = getAudioContext();
     if (!context) return;
 
@@ -72,7 +74,7 @@ const Index = () => {
     }
 
     afterResume();
-  };
+  }, []);
 
   const playMetaUpdatedSound = () => {
     try {
@@ -84,7 +86,8 @@ const Index = () => {
     }
   };
 
-  const showVisualNotice = () => {
+  const showUpdateNotice = (message: string) => {
+    setUpdateMessage(message);
     setShowMetaUpdateNotice(true);
     if (hideNoticeTimerRef.current) {
       window.clearTimeout(hideNoticeTimerRef.current);
@@ -94,6 +97,19 @@ const Index = () => {
       hideNoticeTimerRef.current = null;
     }, 10000);
   };
+
+  const notifyUpdate = useCallback((message: string, description: string) => {
+    try {
+      playMetaUpdatedSound();
+    } catch {
+      // Em alguns navegadores o autoplay pode ser bloqueado sem interação do usuário.
+    }
+    showUpdateNotice(message);
+    toast.success(message, {
+      duration: 10000,
+      description,
+    });
+  }, []);
 
   useEffect(() => {
     unlockAudio();
@@ -109,39 +125,63 @@ const Index = () => {
         window.clearTimeout(hideNoticeTimerRef.current);
       }
     };
-  }, []);
+  }, [unlockAudio]);
 
   useEffect(() => {
     if (!metaData) return;
 
     const previous = previousMetaSnapshotRef.current;
-    const changed =
-      previous !== null &&
-      (Math.abs(metaData.meta - previous.meta) > 0.0001 ||
-        Math.abs(metaData.atual - previous.atual) > 0.0001);
+    
+    // Se é a primeira execução, apenas armazena o snapshot
+    if (previous === null) {
+      previousMetaSnapshotRef.current = { meta: metaData.meta, atual: metaData.atual };
+      return;
+    }
 
-    if (changed) {
-      try {
-        playMetaUpdatedSound();
-      } catch {
-        // Em alguns navegadores o autoplay pode ser bloqueado sem interação do usuário.
-      }
+    // Detecta mudanças significativas na meta ou valor atual
+    const metaChanged = Math.abs(metaData.meta - previous.meta) >= 0.01;
+    const atualChanged = Math.abs(metaData.atual - previous.atual) >= 0.01;
 
-      showVisualNotice();
-      toast.success("Meta atualizada 🔔", {
-        duration: 10000,
-        description: "Os valores da planilha foram atualizados.",
-      });
+    if (metaChanged || atualChanged) {
+      const changes = [];
+      if (metaChanged) changes.push(`meta: ${previous.meta.toFixed(2)} → ${metaData.meta.toFixed(2)}`);
+      if (atualChanged) changes.push(`atual: ${previous.atual.toFixed(2)} → ${metaData.atual.toFixed(2)}`);
+      
+      notifyUpdate("Meta atualizada 🔔", `Mudança: ${changes.join(", ")}`);
+      console.log("Meta mudou:", { previous, atual: metaData, changes });
     }
 
     previousMetaSnapshotRef.current = { meta: metaData.meta, atual: metaData.atual };
-  }, [metaData]);
+  }, [metaData, notifyUpdate]);
+
+  // Detecta mudanças na planilha de OS
+  useEffect(() => {
+    if (osData.length === 0) return;
+
+    const previous = previousOSCountRef.current;
+
+    // Se é a primeira execução, apenas armazena o snapshot
+    if (previous === null) {
+      previousOSCountRef.current = osData.length;
+      return;
+    }
+
+    // Detecta mudanças no número total de OS ou nos status
+    if (osData.length !== previous) {
+      const change = osData.length > previous ? "adicionada" : "removida";
+      const diff = Math.abs(osData.length - previous);
+      notifyUpdate("Planilha atualizada 📋", `${diff} OS ${change}${diff > 1 ? "s" : ""}`);
+      console.log("OS data mudou:", { anterior: previous, agora: osData.length });
+    }
+
+    previousOSCountRef.current = osData.length;
+  }, [osData, notifyUpdate]);
 
   return (
     <div className="min-h-screen bg-background">
       {showMetaUpdateNotice && (
         <div className="fixed top-6 right-6 z-50 rounded-lg border border-green-500 bg-green-900/90 px-4 py-3 text-sm font-semibold text-green-100 shadow-lg backdrop-blur">
-          Meta atualizada 🔔
+          {updateMessage || "Atualizado 🔔"}
         </div>
       )}
 
