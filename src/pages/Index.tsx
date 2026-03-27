@@ -6,6 +6,7 @@ import { KpiCard } from "@/components/KpiCard";
 import { MetaCard } from "@/components/MetaCard";
 import { StatusChart } from "@/components/StatusChart";
 import { RecentOSTable } from "@/components/RecentOSTable";
+import { VERSION } from "@/version";
 import {
   fetchOSData,
   fetchMetaData,
@@ -196,6 +197,9 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">Dashboard de KPIs — Ordens de Serviço</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
+            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full opacity-75">
+              v{VERSION}
+            </span>
             <span className="text-sm text-muted-foreground">
               Últ. atualização: {lastUpdate}
             </span>
