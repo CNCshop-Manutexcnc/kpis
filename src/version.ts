@@ -1,2 +1,3 @@
-// Atualizar manualmente com cada commit/release
-export const VERSION = "1.3.6";
+import packageJson from "../package.json";
+
+export const VERSION = packageJson.version;
