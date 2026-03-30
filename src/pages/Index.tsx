@@ -29,14 +29,14 @@ const Index = () => {
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
     queryFn: fetchOSData,
-    refetchInterval: 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
     refetchIntervalInBackground: true,
   });
 
   const { data: metaData } = useQuery<MetaRecord>({
     queryKey: ["metaData"],
     queryFn: fetchMetaData,
-    refetchInterval: 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
     refetchIntervalInBackground: true,
   });
 
