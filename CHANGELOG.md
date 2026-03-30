@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/CNCshop-Manutexcnc/kpis/compare/v1.0.0...v1.1.0) (2026-03-30)
+
+
+### Features
+
+* adiciona fallback DEV para versao placeholder ([3f93645](https://github.com/CNCshop-Manutexcnc/kpis/commit/3f936455c8b091b18e46409f0363adf0e2d27667))
+* Atualização vercionamento ([6e1ea19](https://github.com/CNCshop-Manutexcnc/kpis/commit/6e1ea192ec777931ff83b1598a915200738f40d9))
+
 ## 1.0.0 (2026-03-30)
 
 
