@@ -4,20 +4,58 @@ interface RecentOSTableProps {
   data: OSRecord[];
 }
 
+const STATUS_OS_ORDER = ["URGENTE", "PRONTO", "AGUARDANDO APROVACAO"] as const;
+
+function normalizeStatus(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .trim();
+}
+
+function getStatusOSBucket(status: string): (typeof STATUS_OS_ORDER)[number] | null {
+  const normalized = normalizeStatus(status);
+
+  if (normalized.includes("URGENTE")) return "URGENTE";
+  if (normalized.includes("PRONTO")) return "PRONTO";
+  if (normalized.includes("AGUARDANDO") && normalized.includes("APROVACAO")) return "AGUARDANDO APROVACAO";
+
+  return null;
+}
+
+function getStatusOSLabel(status: string): string {
+  const bucket = getStatusOSBucket(status);
+
+  if (bucket === "URGENTE") return "Urgente";
+  if (bucket === "PRONTO") return "Prontos";
+  if (bucket === "AGUARDANDO APROVACAO") return "Aguardando aprovação";
+
+  return status;
+}
+
+function getStatusOSPriority(status: string): number {
+  const bucket = getStatusOSBucket(status);
+  if (bucket === "URGENTE") return 0;
+  if (bucket === "PRONTO") return 1;
+  if (bucket === "AGUARDANDO APROVACAO") return 2;
+  return 3;
+}
+
 function statusBadge(status: string) {
   if (!status) return <span className="text-muted-foreground text-xs">—</span>;
-  
-  const isUrgent = status.includes("URGENTE");
-  const isApproved = status.includes("APROVADO");
-  const isGarantia = status.includes("GARANTIA");
-  
+
+  const bucket = getStatusOSBucket(status);
+
   let classes = "inline-flex items-center px-2.5 py-1 rounded text-[11px] xl:text-xs font-medium uppercase tracking-wide ";
-  if (isUrgent) classes += "bg-destructive/20 text-destructive";
-  else if (isApproved) classes += "bg-success/20 text-success";
-  else if (isGarantia) classes += "bg-warning/20 text-warning";
+  if (bucket === "URGENTE") classes += "bg-destructive/20 text-destructive";
+  else if (bucket === "PRONTO") classes += "bg-success/20 text-success";
+  else if (bucket === "AGUARDANDO APROVACAO") classes += "bg-warning/20 text-warning";
   else classes += "bg-secondary text-secondary-foreground";
 
-  return <span className={classes}>{status.length > 28 ? status.slice(0, 28) + "…" : status}</span>;
+  const label = getStatusOSLabel(status);
+
+  return <span className={classes}>{label.length > 28 ? label.slice(0, 28) + "…" : label}</span>;
 }
 
 function labBadge(status: string) {
@@ -30,9 +68,10 @@ export function RecentOSTable({ data }: RecentOSTableProps) {
   const aguardando = data
     .filter(os => os.statusLab.includes("AGUARDANDO"))
     .sort((a, b) => {
-      const aUrgent = a.statusOS.includes("URGENTE") ? 0 : 1;
-      const bUrgent = b.statusOS.includes("URGENTE") ? 0 : 1;
-      return aUrgent - bUrgent;
+      const priorityDiff = getStatusOSPriority(a.statusOS) - getStatusOSPriority(b.statusOS);
+      if (priorityDiff !== 0) return priorityDiff;
+
+      return a.numero.localeCompare(b.numero, "pt-BR", { numeric: true, sensitivity: "base" });
     });
 
   return (
