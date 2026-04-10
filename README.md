@@ -4,6 +4,65 @@ https://cncshop-manutexcnc.github.io/cartao_digital/
 
 www.cncshop.com.br
 
+## Como rodar localmente
+
+### Requisitos
+
+- Node.js 20+ (recomendado)
+- npm 10+ (ou compatível com seu Node)
+
+### Passo a passo
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+2. Inicie em modo desenvolvimento:
+
+```bash
+npm run dev
+```
+
+3. Acesse no navegador:
+
+```text
+http://localhost:8080
+```
+
+## Como testar localmente
+
+### Rodar testes automatizados
+
+```bash
+npm run test
+```
+
+### Rodar testes em modo watch
+
+```bash
+npm run test:watch
+```
+
+### Validar build de produção
+
+```bash
+npm run build
+```
+
+### Validar lint
+
+```bash
+npm run lint
+```
+
+## Fonte dos dados no ambiente local
+
+- O dashboard consome dados CSV publicados no Google Sheets.
+- Mesmo rodando localmente, os dados continuam vindo das URLs definidas no codigo.
+- Arquivo de referencia: `src/data/osData.ts`.
+
 ## Guia Rápido de Versionamento
 
 Este projeto usa Conventional Commits + Release Please para versionamento SemVer automatizado.

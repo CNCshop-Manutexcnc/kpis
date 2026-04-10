@@ -13,15 +13,77 @@ export interface OSRecord {
   categoriaOS: string;
 }
 
+const STATUS_LAB_ORDER = [
+  "Aguardando avaliação",
+  "Em avaliação - confirmando defeito",
+  "Descontaminação/reparo",
+  "Aguardando peça interna",
+  "Equipamento em teste final",
+  "Embalagem/expedição - pronto",
+] as const;
+
+function normalizeStatus(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .trim();
+}
+
+function mapStatusToBucket(statusLab: string): (typeof STATUS_LAB_ORDER)[number] | null {
+  const normalized = normalizeStatus(statusLab);
+
+  if (normalized.includes("AGUARDANDO AVALIACAO")) {
+    return "Aguardando avaliação";
+  }
+
+  if (normalized.includes("EM AVALIACAO - CONFIRMANDO DEFEITO")) {
+    return "Em avaliação - confirmando defeito";
+  }
+
+  if (normalized.includes("DESCONTAM") || normalized.includes("REPARO")) {
+    return "Descontaminação/reparo";
+  }
+
+  if (normalized.includes("AGUARDANDO PECA INTERNA")) {
+    return "Aguardando peça interna";
+  }
+
+  if (normalized.includes("EQUIPAMENTO EM TESTE FINAL")) {
+    return "Equipamento em teste final";
+  }
+
+  if (normalized.includes("EMBALAGEM") && normalized.includes("EXPEDICAO") && normalized.includes("PRONTO")) {
+    return "Embalagem/expedição - pronto";
+  }
+
+  return null;
+}
+
 export function getStatusLabCountData(data: OSRecord[]) {
-  const groups: Record<string, number> = {};
+  const groups = STATUS_LAB_ORDER.reduce<Record<(typeof STATUS_LAB_ORDER)[number], number>>(
+    (acc, status) => {
+      acc[status] = 0;
+      return acc;
+    },
+    {
+      "Aguardando avaliação": 0,
+      "Em avaliação - confirmando defeito": 0,
+      "Descontaminação/reparo": 0,
+      "Aguardando peça interna": 0,
+      "Equipamento em teste final": 0,
+      "Embalagem/expedição - pronto": 0,
+    },
+  );
+
   data.forEach(os => {
-    const status = os.statusLab || "SEM STATUS";
-    groups[status] = (groups[status] || 0) + 1;
+    const bucket = mapStatusToBucket(os.statusLab || "");
+    if (bucket) {
+      groups[bucket] += 1;
+    }
   });
-  return Object.entries(groups)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
+
+  return STATUS_LAB_ORDER.map(name => ({ name, value: groups[name] }));
 }
 
 const SHEET_CSV_URL =
