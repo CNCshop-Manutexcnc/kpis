@@ -6,6 +6,12 @@ interface RecentOSTableProps {
 
 const STATUS_OS_ORDER = ["URGENTE", "PRONTO", "AGUARDANDO APROVACAO"] as const;
 
+const STATUS_OS_THEME: Record<(typeof STATUS_OS_ORDER)[number], { label: string; classes: string }> = {
+  URGENTE: { label: "Urgente", classes: "bg-destructive/20 text-destructive" },
+  PRONTO: { label: "Prontos", classes: "bg-success/20 text-success" },
+  "AGUARDANDO APROVACAO": { label: "Aguardando aprovação", classes: "bg-warning/20 text-warning" },
+};
+
 function normalizeStatus(value: string): string {
   return value
     .normalize("NFD")
@@ -27,9 +33,7 @@ function getStatusOSBucket(status: string): (typeof STATUS_OS_ORDER)[number] | n
 function getStatusOSLabel(status: string): string {
   const bucket = getStatusOSBucket(status);
 
-  if (bucket === "URGENTE") return "Urgente";
-  if (bucket === "PRONTO") return "Prontos";
-  if (bucket === "AGUARDANDO APROVACAO") return "Aguardando aprovação";
+  if (bucket) return STATUS_OS_THEME[bucket].label;
 
   return status;
 }
@@ -48,9 +52,7 @@ function statusBadge(status: string) {
   const bucket = getStatusOSBucket(status);
 
   let classes = "inline-flex items-center px-2.5 py-1 rounded text-[11px] xl:text-xs font-medium uppercase tracking-wide ";
-  if (bucket === "URGENTE") classes += "bg-destructive/20 text-destructive";
-  else if (bucket === "PRONTO") classes += "bg-success/20 text-success";
-  else if (bucket === "AGUARDANDO APROVACAO") classes += "bg-warning/20 text-warning";
+  if (bucket) classes += STATUS_OS_THEME[bucket].classes;
   else classes += "bg-secondary text-secondary-foreground";
 
   const label = getStatusOSLabel(status);
@@ -78,7 +80,7 @@ export function RecentOSTable({ data }: RecentOSTableProps) {
     <div className="rounded-lg bg-card border border-border p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm xl:text-base font-medium uppercase tracking-wider text-muted-foreground">
-          OS Aguardando Avaliação
+          OS Aguardando
         </h3>
         <span className="text-xs xl:text-sm font-mono bg-warning/15 text-warning px-3 py-1.5 rounded">
           {aguardando.length} registros

@@ -287,7 +287,7 @@ const Index = () => {
             {metaData && <MetaCard meta={metaData.meta} atual={metaData.atual} />}
 
             {/* Chart: Status Lab */}
-            <StatusChart data={statusLabData} title="Status do Laboratório (Contagem)" layout="vertical" />
+            <StatusChart data={statusLabData} title="Status do Laboratório" layout="vertical" />
 
             {/* Tabela: OS Aguardando Avaliação */}
             <RecentOSTable data={osData} />

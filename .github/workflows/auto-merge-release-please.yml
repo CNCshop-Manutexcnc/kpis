@@ -19,37 +19,30 @@ jobs:
       contains(join(github.event.pull_request.labels.*.name, ','), 'autorelease: pending')
     runs-on: ubuntu-latest
     steps:
-      - name: Enable auto-merge for this Release Please PR
+      - name: Merge this Release Please PR
         uses: actions/github-script@v7
         with:
           script: |
-            const prNodeId = context.payload.pull_request.node_id;
-            const methods = ["SQUASH", "MERGE", "REBASE"];
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
 
-            for (const mergeMethod of methods) {
-              try {
-                await github.graphql(
-                  `mutation($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
-                    enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
-                      pullRequest { number }
-                    }
-                  }`,
-                  { pullRequestId: prNodeId, mergeMethod }
-                );
-                core.info(`Auto-merge enabled for PR #${context.payload.pull_request.number} using ${mergeMethod}.`);
-                return;
-              } catch (error) {
-                core.warning(`Method ${mergeMethod} failed: ${error.message}`);
-              }
+            try {
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number,
+                merge_method: "squash",
+              });
+              core.info(`Release Please PR #${pull_number} merged successfully.`);
+            } catch (error) {
+              core.setFailed(`Could not merge Release Please PR #${pull_number}: ${error.message}`);
             }
-
-            core.setFailed("Could not enable auto-merge with any merge method.");
 
   enable-automerge-sweep:
     if: github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
-      - name: Enable auto-merge for open Release Please PRs
+      - name: Merge open Release Please PRs
         uses: actions/github-script@v7
         with:
           script: |
@@ -76,28 +69,15 @@ jobs:
             }
 
             for (const pr of candidates) {
-              const methods = ["SQUASH", "MERGE", "REBASE"];
-              let enabled = false;
-
-              for (const mergeMethod of methods) {
-                try {
-                  await github.graphql(
-                    `mutation($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
-                      enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
-                        pullRequest { number }
-                      }
-                    }`,
-                    { pullRequestId: pr.node_id, mergeMethod }
-                  );
-                  core.info(`Auto-merge enabled for PR #${pr.number} with ${mergeMethod}.`);
-                  enabled = true;
-                  break;
-                } catch (error) {
-                  core.warning(`PR #${pr.number} failed with ${mergeMethod}: ${error.message}`);
-                }
-              }
-
-              if (!enabled) {
-                core.warning(`Could not enable auto-merge for PR #${pr.number}.`);
+              try {
+                await github.rest.pulls.merge({
+                  owner,
+                  repo,
+                  pull_number: pr.number,
+                  merge_method: "squash",
+                });
+                core.info(`Release Please PR #${pr.number} merged successfully.`);
+              } catch (error) {
+                core.warning(`Could not merge PR #${pr.number}: ${error.message}`);
               }
             }
