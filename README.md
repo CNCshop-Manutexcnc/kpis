@@ -3,3 +3,71 @@ Bem-vindo ao projeto
 https://cncshop-manutexcnc.github.io/cartao_digital/
 
 www.cncshop.com.br
+
+## Guia Rápido de Versionamento
+
+Este projeto usa Conventional Commits + Release Please para versionamento SemVer automatizado.
+
+### Como funciona
+
+1. Faça commits no padrão Conventional Commits.
+2. O Release Please cria ou atualiza o PR de release na main.
+3. O PR de release é mergeado e gera tag/release no GitHub.
+4. O deploy publica o build com a versão atualizada no topo do sistema.
+
+### Tipos de commit e impacto na versão
+
+- fix: sobe Patch (exemplo: 1.0.0 -> 1.0.1)
+- feat: sobe Minor (exemplo: 1.0.0 -> 1.1.0)
+- feat! ou BREAKING CHANGE: sobe Major (exemplo: 1.0.0 -> 2.0.0)
+- refactor: normalmente Patch
+- chore, docs, test: normalmente sem impacto funcional direto
+
+### Exemplos prontos
+
+- fix: corrige exibicao da versao no header
+- fix: ajusta intervalo de atualizacao para 2 minutos
+- feat: adiciona filtro por status no dashboard
+- refactor: simplifica logica de notificacoes
+- chore: ajusta workflow de release
+
+### Modelo recomendado
+
+tipo(escopo): resumo curto
+
+Exemplo:
+
+fix(version): corrige leitura da versao no build
+
+### Commits para evitar
+
+- Evite mensagens vagas como: update, ajustes, melhorias, misc
+- Evite usar feat quando for apenas correcao (prefira fix)
+- Evite usar feat! sem necessidade (isso sobe Major)
+- Evite misturar varios tipos de mudanca em um unico commit
+
+### Boas praticas para nao gerar release inesperada
+
+1. Use fix para bug e feat apenas para funcionalidade nova.
+2. Separe mudancas tecnicas (chore/refactor) das funcionais.
+3. Use BREAKING CHANGE somente quando houver quebra real de compatibilidade.
+4. Revise o titulo do commit antes do push para main.
+
+### Cenario -> commit recomendado
+
+| Cenario | Commit recomendado | Impacto SemVer |
+| --- | --- | --- |
+| Corrigiu bug na tela ou regra de negocio | fix: corrige ... | Patch |
+| Adicionou nova funcionalidade para usuario | feat: adiciona ... | Minor |
+| Melhorou organizacao interna sem mudar comportamento | refactor: reorganiza ... | Patch |
+| Ajustou pipeline, CI/CD, workflow ou build | chore: ajusta ... | Sem release funcional |
+| Atualizou documentacao | docs: atualiza ... | Sem release funcional |
+| Mudou contrato/API de forma incompativel | feat!: altera ... ou BREAKING CHANGE | Major |
+
+### 5 exemplos reais (copiar e usar)
+
+1. fix: ajusta intervalo de autoatualizacao para 2 minutos
+2. fix: corrige exibicao da versao no topo do dashboard
+3. feat: exibe versao dinamica do build no header
+4. chore: automatiza merge de PRs do release-please
+5. chore: ajusta deploy para injetar versao da release no build
