@@ -328,7 +328,7 @@ const Index = () => {
             </div>
 
             {/* Chart: Status Lab */}
-            <StatusChart data={statusLabData} title="Status do Laboratório" layout="vertical" />
+            <StatusChart data={statusLabData} title="STATUS LABORATÓRIO ELETRONICO" layout="vertical" />
 
             {/* Tabela: OS Aguardando Avaliação */}
             <RecentOSTable data={osData} />
