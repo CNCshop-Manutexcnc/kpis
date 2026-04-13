@@ -12,12 +12,12 @@ import {
   fetchMetaData,
   getStatusLabCountData,
   type OSRecord,
-  type MetaRecord,
+  type MetaSheetData,
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
 const Index = () => {
-  const previousMetaSnapshotRef = useRef<MetaRecord | null>(null);
+  const previousMetaSnapshotRef = useRef<MetaSheetData | null>(null);
   const previousOSCountRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -33,7 +33,7 @@ const Index = () => {
     refetchIntervalInBackground: true,
   });
 
-  const { data: metaData } = useQuery<MetaRecord>({
+  const { data: metaData } = useQuery<MetaSheetData>({
     queryKey: ["metaData"],
     queryFn: fetchMetaData,
     refetchInterval: 2 * 60 * 1000,
@@ -188,23 +188,45 @@ const Index = () => {
     if (!metaData) return;
 
     const previous = previousMetaSnapshotRef.current;
-    
+
     // Se é a primeira execução, apenas armazena o snapshot
     if (previous === null) {
-      previousMetaSnapshotRef.current = { meta: metaData.meta, atual: metaData.atual };
+      previousMetaSnapshotRef.current = {
+        laboratorioEletronico: {
+          meta: metaData.laboratorioEletronico.meta,
+          atual: metaData.laboratorioEletronico.atual,
+        },
+        laboratorioMotores: {
+          meta: metaData.laboratorioMotores.meta,
+          atual: metaData.laboratorioMotores.atual,
+        },
+      };
       return;
     }
 
     // Detecta mudanças significativas na meta ou valor atual
-    const metaChanged = Math.abs(metaData.meta - previous.meta) >= 0.01;
-    const atualChanged = Math.abs(metaData.atual - previous.atual) >= 0.01;
+    const metaChanged =
+      Math.abs(metaData.laboratorioEletronico.meta - previous.laboratorioEletronico.meta) >= 0.01 ||
+      Math.abs(metaData.laboratorioMotores.meta - previous.laboratorioMotores.meta) >= 0.01;
+    const atualChanged =
+      Math.abs(metaData.laboratorioEletronico.atual - previous.laboratorioEletronico.atual) >= 0.01 ||
+      Math.abs(metaData.laboratorioMotores.atual - previous.laboratorioMotores.atual) >= 0.01;
 
     if (metaChanged || atualChanged) {
       notifyUpdate("Meta atualizada 🔔", "A planilha de meta foi atualizada.");
       console.log("Meta mudou:", { previous, atual: metaData, metaChanged, atualChanged });
     }
 
-    previousMetaSnapshotRef.current = { meta: metaData.meta, atual: metaData.atual };
+    previousMetaSnapshotRef.current = {
+      laboratorioEletronico: {
+        meta: metaData.laboratorioEletronico.meta,
+        atual: metaData.laboratorioEletronico.atual,
+      },
+      laboratorioMotores: {
+        meta: metaData.laboratorioMotores.meta,
+        atual: metaData.laboratorioMotores.atual,
+      },
+    };
   }, [metaData, notifyUpdate]);
 
   // Detecta mudanças na planilha de OS
@@ -283,8 +305,27 @@ const Index = () => {
               <KpiCard title="Aguardando Avaliação" value={aguardando} icon={<Wrench className="h-6 w-6" />} subtitle={`${total > 0 ? ((aguardando / total) * 100).toFixed(0) : 0}% do total`} />
             </div>
 
-            {/* Meta Mensal */}
-            {metaData && <MetaCard meta={metaData.meta} atual={metaData.atual} />}
+            {/* Metas do laboratorio */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {metaData ? (
+                <MetaCard
+                  title="META LABOTORIO ELETRONICO"
+                  meta={metaData.laboratorioEletronico.meta}
+                  atual={metaData.laboratorioEletronico.atual}
+                />
+              ) : (
+                <MetaCard title="META LABOTORIO ELETRONICO" meta={0} atual={0} empty />
+              )}
+              {metaData ? (
+                <MetaCard
+                  title="META LABORATORIO MOTORES"
+                  meta={metaData.laboratorioMotores.meta}
+                  atual={metaData.laboratorioMotores.atual}
+                />
+              ) : (
+                <MetaCard title="META LABORATORIO MOTORES" meta={0} atual={0} empty />
+              )}
+            </div>
 
             {/* Chart: Status Lab */}
             <StatusChart data={statusLabData} title="Status do Laboratório" layout="vertical" />

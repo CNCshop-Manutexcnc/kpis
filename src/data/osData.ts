@@ -97,6 +97,11 @@ export interface MetaRecord {
   atual: number;
 }
 
+export interface MetaSheetData {
+  laboratorioEletronico: MetaRecord;
+  laboratorioMotores: MetaRecord;
+}
+
 function withCacheBuster(url: string): string {
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}_ts=${Date.now()}`;
@@ -107,18 +112,37 @@ function parseNumber(str: string): number {
   return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
 }
 
-export async function fetchMetaData(): Promise<MetaRecord> {
+export async function fetchMetaData(): Promise<MetaSheetData> {
   const res = await fetch(withCacheBuster(META_CSV_URL), { cache: "no-store" });
   const text = await res.text();
   console.log("META CSV raw:", text);
   const lines = text.split("\n").filter(l => l.trim());
-  if (lines.length < 2) return { meta: 0, atual: 0 };
-  const cols = parseCSVLine(lines[1]);
+  if (lines.length < 3) {
+    return {
+      laboratorioEletronico: { meta: 0, atual: 0 },
+      laboratorioMotores: { meta: 0, atual: 0 },
+    };
+  }
+
+  const cols = parseCSVLine(lines[2]);
   console.log("META parsed cols:", cols);
-  const meta = parseNumber(cols[0] ?? "0");
-  const atual = parseNumber(cols[1] ?? "0");
-  console.log("META values:", { meta, atual, percent: meta > 0 ? (atual / meta * 100).toFixed(1) : 0 });
-  return { meta, atual };
+
+  const laboratorioEletronico = {
+    meta: parseNumber(cols[0] ?? "0"),
+    atual: parseNumber(cols[1] ?? "0"),
+  };
+
+  const laboratorioMotores = {
+    meta: parseNumber(cols[5] ?? "0"),
+    atual: parseNumber(cols[6] ?? "0"),
+  };
+
+  console.log("META values:", {
+    laboratorioEletronico,
+    laboratorioMotores,
+  });
+
+  return { laboratorioEletronico, laboratorioMotores };
 }
 
 function parseCSVLine(line: string): string[] {

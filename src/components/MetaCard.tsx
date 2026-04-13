@@ -2,11 +2,13 @@ import { Target } from "lucide-react";
 import { useMemo, type CSSProperties } from "react";
 
 interface MetaCardProps {
+  title: string;
   meta: number;
   atual: number;
+  empty?: boolean;
 }
 
-export function MetaCard({ meta, atual }: MetaCardProps) {
+export function MetaCard({ title, meta, atual, empty = false }: MetaCardProps) {
   const percent = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
   const showConfetti = percent >= 100;
 
@@ -41,17 +43,19 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
   };
 
   const getLabel = () => {
+    if (empty) return "Aguardando dados";
     if (percent >= 100) return "Meta alcançada! 🎉";
     return "Estamos quase lá";
   };
 
   const getLabelClass = () => {
+    if (empty) return "text-muted-foreground";
     if (percent >= 100) return "text-success";
     return "text-accent";
   };
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-card border border-border p-6 xl:p-8 animate-slide-up group hover:border-primary/30 transition-colors col-span-1 sm:col-span-2">
+    <div className="relative overflow-hidden rounded-lg bg-card border border-border p-4 xl:p-5 animate-slide-up group hover:border-primary/30 transition-colors col-span-1">
       {showConfetti && (
         <div className="meta-confetti-layer" aria-hidden="true">
           {confettiPieces.map(piece => (
@@ -60,16 +64,18 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
         </div>
       )}
       <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-60" />
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-3">
         <div className="space-y-1">
-          <p className="text-xs xl:text-sm font-medium uppercase tracking-wider text-muted-foreground">
-            Meta Mensal
+          <p className="text-[10px] xl:text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {title}
           </p>
-          <p className="text-3xl xl:text-5xl font-bold font-mono text-foreground">
-            {percent.toFixed(1)}%
+          <p className="text-2xl xl:text-4xl font-bold font-mono text-foreground">
+            {empty ? "—" : `${percent.toFixed(1)}%`}
           </p>
-          <p className={`text-sm xl:text-base font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
-            {percent >= 100 ? (
+          <p className={`text-xs xl:text-sm font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
+            {empty ? (
+              <span>Sem fonte de dados</span>
+            ) : percent >= 100 ? (
               <>
                 <span>Meta alcançada!</span>
                 <span className="text-lg leading-none">🎉</span>
@@ -80,19 +86,19 @@ export function MetaCard({ meta, atual }: MetaCardProps) {
           </p>
         </div>
         <div className="p-2 rounded-md bg-secondary text-accent">
-          <Target className="h-6 w-6" />
+          <Target className="h-5 w-5 xl:h-6 xl:w-6" />
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-secondary rounded-full h-4 overflow-hidden">
+      <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-700 ease-out ${getColor()}`}
-          style={{ width: `${percent}%` }}
+          style={{ width: empty ? "0%" : `${percent}%` }}
         />
       </div>
-      <div className="mt-2 text-xs text-muted-foreground">
-        <span>{percent.toFixed(1)}%</span>
+      <div className="mt-1.5 text-[11px] text-muted-foreground">
+        <span>{empty ? "Configure a origem dos dados" : `${percent.toFixed(1)}%`}</span>
       </div>
     </div>
   );
