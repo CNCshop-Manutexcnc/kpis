@@ -65,14 +65,14 @@ export function MetaCard({ title, meta, atual, empty = false }: MetaCardProps) {
       )}
       <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-60" />
       <div className="flex items-start justify-between mb-3">
-        <div className="space-y-1">
-          <p className="text-[10px] xl:text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="space-y-2">
+          <p className="text-lg xl:text-2xl font-semibold uppercase tracking-wider text-muted-foreground">
             {title}
           </p>
-          <p className="text-2xl xl:text-4xl font-bold font-mono text-foreground">
+          <p className="text-3xl xl:text-5xl font-bold font-mono text-foreground">
             {empty ? "—" : `${percent.toFixed(1)}%`}
           </p>
-          <p className={`text-xs xl:text-sm font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
+          <p className={`text-sm xl:text-base font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
             {empty ? (
               <span>Sem fonte de dados</span>
             ) : percent >= 100 ? (
@@ -96,9 +96,6 @@ export function MetaCard({ title, meta, atual, empty = false }: MetaCardProps) {
           className={`h-full rounded-full transition-all duration-700 ease-out ${getColor()}`}
           style={{ width: empty ? "0%" : `${percent}%` }}
         />
-      </div>
-      <div className="mt-1.5 text-[11px] text-muted-foreground">
-        <span>{empty ? "Configure a origem dos dados" : `${percent.toFixed(1)}%`}</span>
       </div>
     </div>
   );

@@ -265,26 +265,26 @@ const Index = () => {
             <img src={logo} alt="CNCShop - Grupo Manutex CNC" className="h-10" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground tracking-tight">Laboratório Eletrônico</h1>
-            <p className="text-sm text-muted-foreground">Dashboard de KPIs — Ordens de Serviço</p>
+            <h1 className="text-2xl xl:text-3xl font-bold text-foreground tracking-tight">Laboratório Eletrônico</h1>
+            <p className="text-base xl:text-lg text-muted-foreground">Dashboard de KPIs — Ordens de Serviço</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-muted-foreground bg-secondary px-3 py-1 rounded-full opacity-75">
+            <span className="text-sm xl:text-base text-muted-foreground bg-secondary px-3 py-1 rounded-full opacity-75">
               v{VERSION}
             </span>
             <button
               type="button"
               onClick={handleTestSound}
-              className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary/80"
+              className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-4 py-2 text-sm text-muted-foreground hover:bg-secondary/80"
             >
-              <Volume2 className="h-3.5 w-3.5" />
+              <Volume2 className="h-4 w-4" />
               Testar som
             </button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-base xl:text-lg text-muted-foreground">
               Últ. atualização: {lastUpdate}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground bg-secondary px-4 py-2 rounded-md">
-              <span className="h-2 w-2 rounded-full bg-success animate-pulse-glow" />
+            <span className="inline-flex items-center gap-1.5 text-base xl:text-lg text-muted-foreground bg-secondary px-4 py-2 rounded-md">
+              <span className="h-3 w-3 rounded-full bg-success animate-pulse-glow" />
               {total} OS ativas
             </span>
           </div>
