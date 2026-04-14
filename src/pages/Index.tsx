@@ -310,9 +310,6 @@ const Index = () => {
         ) : (
           <>
             <section className="overflow-hidden rounded-2xl border border-border bg-card/80 shadow-sm">
-              <div className="border-b border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                Mensagens do laboratório
-              </div>
               <div className="marquee-mask px-4 py-4">
                 <div className="marquee-track">
                   {[...marqueeMessages, ...marqueeMessages].map((message, index) => (
