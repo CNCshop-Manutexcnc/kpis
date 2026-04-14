@@ -16,6 +16,16 @@ import {
 } from "@/data/osData";
 import { useQuery } from "@tanstack/react-query";
 
+const marqueeMessages = [
+  "Parabéns ao funcionário destaque do dia. Seu trabalho fortalece o laboratório todos os dias.",
+  "Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
+  "Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
+  "Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",
+  "Antes de energizar um equipamento, revise conexões, isolamento e aterramento.",
+];
+
+const REFRESH_INTERVAL_MS = 2 * 60 * 1000;
+
 const Index = () => {
   const previousMetaSnapshotRef = useRef<MetaSheetData | null>(null);
   const previousOSCountRef = useRef<number | null>(null);
@@ -29,14 +39,14 @@ const Index = () => {
   const { data: osData = [], isLoading, dataUpdatedAt } = useQuery<OSRecord[]>({
     queryKey: ["osData"],
     queryFn: fetchOSData,
-    refetchInterval: 2 * 60 * 1000,
+    refetchInterval: REFRESH_INTERVAL_MS,
     refetchIntervalInBackground: true,
   });
 
   const { data: metaData } = useQuery<MetaSheetData>({
     queryKey: ["metaData"],
     queryFn: fetchMetaData,
-    refetchInterval: 2 * 60 * 1000,
+    refetchInterval: REFRESH_INTERVAL_MS,
     refetchIntervalInBackground: true,
   });
 
@@ -299,6 +309,21 @@ const Index = () => {
           </div>
         ) : (
           <>
+            <section className="overflow-hidden rounded-2xl border border-border bg-card/80 shadow-sm">
+              <div className="border-b border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                Mensagens do laboratório
+              </div>
+              <div className="marquee-mask px-4 py-4">
+                <div className="marquee-track">
+                  {[...marqueeMessages, ...marqueeMessages].map((message, index) => (
+                    <span key={`${message}-${index}`} className="marquee-item">
+                      {message}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </section>
+
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <KpiCard title="Total de OS" value={total} icon={<ClipboardList className="h-6 w-6" />} subtitle="Ordens ativas no sistema" />

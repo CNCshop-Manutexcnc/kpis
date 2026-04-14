@@ -98,3 +98,44 @@
     opacity: 0;
   }
 }
+
+.marquee-mask {
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 1rem;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-item {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary) / 0.8);
+  color: hsl(var(--foreground));
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    transform: none;
+  }
+}
