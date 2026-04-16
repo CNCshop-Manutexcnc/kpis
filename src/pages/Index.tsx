@@ -17,11 +17,11 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 const marqueeMessages = [
-  "Parabéns ao funcionário destaque do dia. Seu trabalho fortalece o laboratório todos os dias.",
-  "Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
-  "Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
-  "Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",
-  "Antes de energizar um equipamento, revise conexões, isolamento e aterramento.",
+  "🏆 Parabéns ao funcionário destaque do dia. Seu trabalho fortalece o laboratório todos os dias.",
+  "🛡️ Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
+  "📋 Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
+  "✨ Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",
+  "⚡ Antes de energizar um equipamento, revise conexões, isolamento e aterramento.",
 ];
 
 const REFRESH_INTERVAL_MS = 2 * 60 * 1000;
