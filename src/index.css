@@ -85,6 +85,186 @@
   animation-iteration-count: infinite;
 }
 
+.meta-progress-shell {
+  position: relative;
+  margin-top: 0.5rem;
+  padding-top: 0.9rem;
+}
+
+.meta-progress-icon {
+  --icon-size: 4.875rem;
+  position: absolute;
+  top: calc(-0.75rem - 0.5cm);
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  transition: left 700ms ease-out;
+}
+
+.meta-progress-icon-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.meta-progress-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.meta-icon-trail {
+  position: absolute;
+  left: 0.4rem;
+  right: 1rem;
+  top: 1.5rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  filter: blur(5px);
+  opacity: 0.42;
+}
+
+.meta-progress-icon--motor {
+  filter: drop-shadow(0 4px 8px rgba(247, 165, 26, 0.45));
+}
+
+.meta-progress-icon--motor .meta-progress-icon-inner {
+  animation: meta-motor-bounce 1s ease-in-out infinite;
+}
+
+.meta-progress-icon--motor .meta-wheel {
+  transform-origin: center;
+  animation: meta-wheel-spin 0.95s linear infinite;
+}
+
+.meta-progress-icon--motor .meta-icon-trail {
+  background: linear-gradient(90deg, rgba(247, 165, 26, 0), rgba(247, 165, 26, 0.78));
+}
+
+.meta-progress-icon--electronics {
+  filter: drop-shadow(0 0 8px rgba(41, 211, 255, 0.45));
+}
+
+.meta-progress-icon--electronics .meta-progress-icon-inner {
+  animation: meta-tech-float 2.4s ease-in-out infinite;
+}
+
+.meta-progress-icon--electronics .meta-chip {
+  transform-origin: center;
+  animation: meta-tech-pulse 1.7s ease-in-out infinite;
+}
+
+.meta-progress-icon--electronics .meta-wheel {
+  transform-origin: center;
+  animation: meta-wheel-spin 0.95s linear infinite;
+}
+
+.meta-progress-icon--electronics .meta-energy-dot {
+  animation: meta-energy-blink 1.2s ease-in-out infinite;
+}
+
+.meta-progress-icon--electronics .meta-energy-core {
+  animation: meta-energy-core 1.35s ease-in-out infinite;
+}
+
+.meta-progress-icon--electronics .meta-trace {
+  animation: meta-trace-pulse 1.6s ease-in-out infinite;
+}
+
+.meta-progress-icon--electronics .meta-icon-trail {
+  background: linear-gradient(90deg, rgba(41, 211, 255, 0), rgba(41, 211, 255, 0.8));
+}
+
+.meta-progress-fill-tip::after {
+  content: "";
+  position: absolute;
+  right: -0.2rem;
+  top: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: radial-gradient(circle at 35% 35%, #ffd4db 0%, #ff7487 45%, #ff314e 100%);
+  box-shadow: 0 0 12px rgba(255, 72, 110, 0.65);
+}
+
+@keyframes meta-wheel-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes meta-motor-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes meta-tech-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes meta-tech-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px rgba(41, 211, 255, 0.45));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 8px rgba(41, 211, 255, 0.85));
+  }
+}
+
+@keyframes meta-energy-blink {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes meta-energy-core {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+    transform-origin: center;
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+    transform-origin: center;
+  }
+}
+
+@keyframes meta-trace-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    filter: drop-shadow(0 0 1px rgba(66, 220, 255, 0.25));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(66, 220, 255, 0.85));
+  }
+}
+
 @keyframes meta-confetti-fall {
   0% {
     transform: translateY(-5%) rotate(0deg);
@@ -135,6 +315,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .meta-progress-icon {
+    transition: none;
+  }
+
+  .meta-progress-icon--motor .meta-progress-icon-inner,
+  .meta-progress-icon--motor .meta-wheel,
+  .meta-progress-icon--electronics .meta-progress-icon-inner,
+  .meta-progress-icon--electronics .meta-chip,
+  .meta-progress-icon--electronics .meta-wheel,
+  .meta-progress-icon--electronics .meta-energy-dot,
+  .meta-progress-icon--electronics .meta-energy-core,
+  .meta-progress-icon--electronics .meta-trace {
+    animation: none;
+  }
+
   .marquee-track {
     animation: none;
     transform: none;

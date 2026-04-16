@@ -17,7 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 const marqueeMessages = [
-  "🏆 Parabéns ao funcionário destaque do dia. Seu trabalho fortalece o laboratório todos os dias.",
+  "🎂 Parabéns aos funcionário aniversariantes do mes de Abril.",
   "🛡️ Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
   "📋 Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
   "✨ Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",
@@ -334,18 +334,20 @@ const Index = () => {
                   title="META LABOTORIO ELETRONICO"
                   meta={metaData.laboratorioEletronico.meta}
                   atual={metaData.laboratorioEletronico.atual}
+                  labType="eletronico"
                 />
               ) : (
-                <MetaCard title="META LABOTORIO ELETRONICO" meta={0} atual={0} empty />
+                <MetaCard title="META LABOTORIO ELETRONICO" meta={0} atual={0} empty labType="eletronico" />
               )}
               {metaData ? (
                 <MetaCard
                   title="META LABORATORIO MOTORES"
                   meta={metaData.laboratorioMotores.meta}
                   atual={metaData.laboratorioMotores.atual}
+                  labType="motores"
                 />
               ) : (
-                <MetaCard title="META LABORATORIO MOTORES" meta={0} atual={0} empty />
+                <MetaCard title="META LABORATORIO MOTORES" meta={0} atual={0} empty labType="motores" />
               )}
             </div>
 

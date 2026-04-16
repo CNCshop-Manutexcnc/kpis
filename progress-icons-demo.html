@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Progress Icons Demo</title>
+    <style>
+      :root {
+        --bg: #090d14;
+        --panel: #111724;
+        --panel-border: #1d2940;
+        --text: #e7edf9;
+        --muted: #8ea0bd;
+
+        --danger-1: #b21924;
+        --danger-2: #df2030;
+        --danger-3: #ff4458;
+
+        --motor-main: #f7a51a;
+        --motor-soft: #ffd37a;
+        --motor-glow: rgba(247, 165, 26, 0.45);
+
+        --tech-main: #29d3ff;
+        --tech-soft: #8ce8ff;
+        --tech-glow: rgba(41, 211, 255, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at 10% -10%, #1c2a46 0%, transparent 60%),
+          radial-gradient(1000px 500px at 120% 0%, #1d2238 0%, transparent 55%),
+          var(--bg);
+      }
+
+      .wrap {
+        width: min(1100px, 94vw);
+        margin: 48px auto;
+      }
+
+      .title {
+        margin: 0 0 26px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        position: relative;
+        padding: 22px 22px 20px;
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)), var(--panel);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      }
+
+      .meta-title {
+        margin: 0;
+        font-size: 0.96rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--muted);
+      }
+
+      .meta-top {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px;
+      }
+
+      .meta-value {
+        font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.15rem);
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .meta-status {
+        margin-top: 8px;
+        font-size: 0.95rem;
+        color: #a8b8d2;
+      }
+
+      .progress-shell {
+        position: relative;
+        margin-top: 28px;
+        padding-top: 26px;
+      }
+
+      .progress-track {
+        position: relative;
+        height: 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid #3c1219;
+        background: linear-gradient(180deg, #341117 0%, #1f0b0f 100%);
+      }
+
+      .progress-fill {
+        position: relative;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--danger-1) 0%, var(--danger-2) 55%, var(--danger-3) 100%);
+        box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.16), 0 0 18px rgba(255, 36, 62, 0.45);
+        transition: width 900ms cubic-bezier(0.2, 0.85, 0.25, 1);
+      }
+
+      .progress-tip {
+        position: absolute;
+        right: -2px;
+        top: 50%;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        transform: translateY(-50%);
+        background: radial-gradient(circle at 35% 35%, #ffd4db 0%, #ff7487 45%, #ff314e 100%);
+        filter: blur(0.2px);
+        box-shadow: 0 0 16px rgba(255, 72, 110, 0.65);
+        opacity: 0;
+        transition: opacity 280ms ease;
+      }
+
+      .progress-fill.show-tip .progress-tip {
+        opacity: 1;
+      }
+
+      .progress-icon {
+        --size: 64px;
+        position: absolute;
+        left: 0;
+        top: -2px;
+        width: var(--size);
+        height: var(--size);
+        transform: translateX(0);
+        transition: transform 900ms cubic-bezier(0.2, 0.85, 0.25, 1);
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      .icon-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      .icon-trail {
+        position: absolute;
+        left: 8px;
+        right: 28px;
+        top: 27px;
+        height: 8px;
+        border-radius: 999px;
+        filter: blur(6px);
+        opacity: 0.42;
+      }
+
+      .motor .icon-trail {
+        background: linear-gradient(90deg, rgba(247, 165, 26, 0), rgba(247, 165, 26, 0.78));
+      }
+
+      .electronics .icon-trail {
+        background: linear-gradient(90deg, rgba(41, 211, 255, 0), rgba(41, 211, 255, 0.8));
+      }
+
+      .motor .icon-inner {
+        animation: motor-bounce 1s ease-in-out infinite;
+        filter: drop-shadow(0 4px 8px var(--motor-glow));
+      }
+
+      .motor .wheel {
+        transform-origin: center;
+        animation: wheel-spin 0.95s linear infinite;
+      }
+
+      .electronics .icon-inner {
+        animation: tech-float 2.4s ease-in-out infinite;
+        filter: drop-shadow(0 0 8px var(--tech-glow));
+      }
+
+      .electronics .chip {
+        transform-origin: center;
+        animation: tech-pulse 1.7s ease-in-out infinite;
+      }
+
+      .electronics .energy-dot {
+        animation: energy-blink 1.2s ease-in-out infinite;
+      }
+
+      @keyframes wheel-spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes motor-bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-3px);
+        }
+      }
+
+      @keyframes tech-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
+      @keyframes tech-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 3px rgba(41, 211, 255, 0.45));
+        }
+        50% {
+          transform: scale(1.06);
+          filter: drop-shadow(0 0 8px rgba(41, 211, 255, 0.85));
+        }
+      }
+
+      @keyframes energy-blink {
+        0%,
+        100% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .progress-fill,
+        .progress-icon {
+          transition: none;
+        }
+
+        .motor .icon-inner,
+        .motor .wheel,
+        .electronics .icon-inner,
+        .electronics .chip,
+        .electronics .energy-dot {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1 class="title">Metas dos Laboratorios</h1>
+
+      <section class="cards">
+        <article class="card motor" data-progress-card data-target="44.2">
+          <h2 class="meta-title">Meta Laboratorio de Motores</h2>
+          <div class="meta-top">
+            <strong class="meta-value" data-value>0.0%</strong>
+            <span class="meta-status">Estamos quase la</span>
+          </div>
+
+          <div class="progress-shell" data-shell>
+            <div class="progress-icon motor-icon" data-icon>
+              <div class="icon-inner">
+                <span class="icon-trail" aria-hidden="true"></span>
+                <svg viewBox="0 0 120 84" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="motorBody" x1="0%" x2="100%" y1="0%" y2="0%">
+                      <stop offset="0%" stop-color="#f6b432"></stop>
+                      <stop offset="100%" stop-color="#ffdc7f"></stop>
+                    </linearGradient>
+                  </defs>
+                  <rect x="20" y="24" width="70" height="30" rx="8" fill="url(#motorBody)"></rect>
+                  <rect x="76" y="30" width="22" height="18" rx="4" fill="#e48e11"></rect>
+                  <rect x="28" y="30" width="18" height="8" rx="2" fill="#3c2b11" opacity="0.55"></rect>
+                  <rect x="49" y="30" width="18" height="8" rx="2" fill="#3c2b11" opacity="0.55"></rect>
+
+                  <g class="wheel">
+                    <circle cx="38" cy="64" r="12" fill="#1f2430"></circle>
+                    <circle cx="38" cy="64" r="7" fill="#6f7688"></circle>
+                    <line x1="38" y1="52" x2="38" y2="76" stroke="#d1d6e2" stroke-width="2"></line>
+                    <line x1="26" y1="64" x2="50" y2="64" stroke="#d1d6e2" stroke-width="2"></line>
+                  </g>
+
+                  <g class="wheel">
+                    <circle cx="78" cy="64" r="12" fill="#1f2430"></circle>
+                    <circle cx="78" cy="64" r="7" fill="#6f7688"></circle>
+                    <line x1="78" y1="52" x2="78" y2="76" stroke="#d1d6e2" stroke-width="2"></line>
+                    <line x1="66" y1="64" x2="90" y2="64" stroke="#d1d6e2" stroke-width="2"></line>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div class="progress-track">
+              <div class="progress-fill" data-fill>
+                <span class="progress-tip" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card electronics" data-progress-card data-target="28.6">
+          <h2 class="meta-title">Meta Laboratorio Eletronico</h2>
+          <div class="meta-top">
+            <strong class="meta-value" data-value>0.0%</strong>
+            <span class="meta-status">Estamos quase la</span>
+          </div>
+
+          <div class="progress-shell" data-shell>
+            <div class="progress-icon tech-icon" data-icon>
+              <div class="icon-inner">
+                <span class="icon-trail" aria-hidden="true"></span>
+                <svg viewBox="0 0 120 84" aria-hidden="true">
+                  <g class="chip">
+                    <rect x="26" y="20" width="68" height="44" rx="10" fill="#0e2130" stroke="#2ad5ff" stroke-width="2"></rect>
+                    <rect x="38" y="32" width="44" height="20" rx="4" fill="#123a50" stroke="#84ecff" stroke-width="1.5"></rect>
+                    <circle cx="46" cy="42" r="2.3" fill="#8ce8ff" class="energy-dot"></circle>
+                    <circle cx="60" cy="42" r="2.3" fill="#8ce8ff" class="energy-dot" style="animation-delay: 0.2s"></circle>
+                    <circle cx="74" cy="42" r="2.3" fill="#8ce8ff" class="energy-dot" style="animation-delay: 0.4s"></circle>
+                  </g>
+
+                  <g stroke="#42dcff" stroke-width="2" stroke-linecap="round">
+                    <line x1="20" y1="28" x2="26" y2="28"></line>
+                    <line x1="20" y1="38" x2="26" y2="38"></line>
+                    <line x1="20" y1="48" x2="26" y2="48"></line>
+                    <line x1="20" y1="58" x2="26" y2="58"></line>
+                    <line x1="94" y1="28" x2="100" y2="28"></line>
+                    <line x1="94" y1="38" x2="100" y2="38"></line>
+                    <line x1="94" y1="48" x2="100" y2="48"></line>
+                    <line x1="94" y1="58" x2="100" y2="58"></line>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div class="progress-track">
+              <div class="progress-fill" data-fill>
+                <span class="progress-tip" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const cards = document.querySelectorAll("[data-progress-card]");
+
+        function clamp(value, min, max) {
+          return Math.min(Math.max(value, min), max);
+        }
+
+        function setCardProgress(card, value) {
+          const target = clamp(Number(value) || 0, 0, 100);
+          const fill = card.querySelector("[data-fill]");
+          const icon = card.querySelector("[data-icon]");
+          const shell = card.querySelector("[data-shell]");
+          const valueNode = card.querySelector("[data-value]");
+
+          if (!fill || !icon || !shell || !valueNode) return;
+
+          fill.style.width = target + "%";
+          valueNode.textContent = target.toFixed(1) + "%";
+
+          requestAnimationFrame(function () {
+            const shellWidth = shell.clientWidth;
+            const iconWidth = icon.offsetWidth;
+            const maxX = Math.max(shellWidth - iconWidth, 0);
+            const x = (target / 100) * maxX;
+            icon.style.transform = "translateX(" + x.toFixed(2) + "px)";
+
+            if (target > 1.5) {
+              fill.classList.add("show-tip");
+            } else {
+              fill.classList.remove("show-tip");
+            }
+          });
+        }
+
+        function animateFromZero(card) {
+          const finalValue = Number(card.getAttribute("data-target")) || 0;
+          const duration = 1300;
+          const start = performance.now();
+
+          function step(now) {
+            const t = clamp((now - start) / duration, 0, 1);
+            const easeOut = 1 - Math.pow(1 - t, 3);
+            const value = finalValue * easeOut;
+            setCardProgress(card, value);
+
+            if (t < 1) {
+              requestAnimationFrame(step);
+            } else {
+              setCardProgress(card, finalValue);
+            }
+          }
+
+          requestAnimationFrame(step);
+        }
+
+        cards.forEach(animateFromZero);
+
+        let resizeRaf = null;
+        window.addEventListener("resize", function () {
+          if (resizeRaf) cancelAnimationFrame(resizeRaf);
+
+          resizeRaf = requestAnimationFrame(function () {
+            cards.forEach(function (card) {
+              const current = Number(card.getAttribute("data-target")) || 0;
+              setCardProgress(card, current);
+            });
+          });
+        });
+
+        window.ProgressCards = {
+          setProgress: function (selector, value) {
+            const card = document.querySelector(selector);
+            if (!card) return;
+            card.setAttribute("data-target", String(value));
+            setCardProgress(card, value);
+          },
+        };
+      })();
+    </script>
+  </body>
+</html>

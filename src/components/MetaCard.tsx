@@ -1,16 +1,140 @@
 import { Target } from "lucide-react";
 import { useMemo, type CSSProperties } from "react";
 
+type LabType = "motores" | "eletronico";
+
 interface MetaCardProps {
   title: string;
   meta: number;
   atual: number;
   empty?: boolean;
+  labType?: LabType;
 }
 
-export function MetaCard({ title, meta, atual, empty = false }: MetaCardProps) {
+function MotorIcon() {
+  return (
+    <svg viewBox="0 0 120 84" aria-hidden="true" className="meta-progress-svg">
+      <defs>
+        <linearGradient id="metaMotorBlock" x1="0%" x2="100%" y1="0%" y2="0%">
+          <stop offset="0%" stopColor="#cb7a06" />
+          <stop offset="100%" stopColor="#ffc95b" />
+        </linearGradient>
+        <linearGradient id="metaMotorHead" x1="0%" x2="0%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffe0a0" />
+          <stop offset="100%" stopColor="#ec9f20" />
+        </linearGradient>
+        <linearGradient id="metaMotorSteel" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#c7cfde" />
+          <stop offset="100%" stopColor="#7d879d" />
+        </linearGradient>
+      </defs>
+      <rect x="18" y="56" width="72" height="6" rx="3" fill="#4d3310" opacity="0.75" />
+      <rect x="22" y="24" width="58" height="28" rx="7" fill="url(#metaMotorBlock)" />
+      <rect x="30" y="18" width="42" height="9" rx="3" fill="url(#metaMotorHead)" />
+      <rect x="24" y="28" width="54" height="3" rx="2" fill="#8b5107" opacity="0.55" />
+      <rect x="24" y="34" width="54" height="3" rx="2" fill="#8b5107" opacity="0.55" />
+      <rect x="24" y="40" width="54" height="3" rx="2" fill="#8b5107" opacity="0.55" />
+
+      <rect x="80" y="30" width="14" height="16" rx="3" fill="#f2a31b" />
+      <rect x="92" y="33" width="9" height="10" rx="2" fill="url(#metaMotorSteel)" />
+      <rect x="99" y="36" width="8" height="4" rx="2" fill="#8a95ac" />
+
+      <rect x="43" y="46" width="16" height="4" rx="2" fill="url(#metaMotorSteel)" />
+      <circle cx="51" cy="48" r="3" fill="#75809a" />
+      <circle cx="30" cy="32" r="2.3" fill="#6f4306" />
+      <circle cx="44" cy="32" r="2.3" fill="#6f4306" />
+      <circle cx="58" cy="32" r="2.3" fill="#6f4306" />
+
+      <g className="meta-wheel">
+        <circle cx="38" cy="64" r="8" fill="#1f2430" />
+        <circle cx="38" cy="64" r="4.6" fill="#6f7688" />
+        <line x1="38" y1="56" x2="38" y2="72" stroke="#d1d6e2" strokeWidth="2" />
+        <line x1="30" y1="64" x2="46" y2="64" stroke="#d1d6e2" strokeWidth="2" />
+      </g>
+
+      <g className="meta-wheel">
+        <circle cx="78" cy="64" r="8" fill="#1f2430" />
+        <circle cx="78" cy="64" r="4.6" fill="#6f7688" />
+        <line x1="78" y1="56" x2="78" y2="72" stroke="#d1d6e2" strokeWidth="2" />
+        <line x1="70" y1="64" x2="86" y2="64" stroke="#d1d6e2" strokeWidth="2" />
+      </g>
+    </svg>
+  );
+}
+
+function ElectronicsIcon() {
+  return (
+    <svg viewBox="0 0 120 84" aria-hidden="true" className="meta-progress-svg">
+      <defs>
+        <linearGradient id="metaChipBody" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#0a2b40" />
+          <stop offset="100%" stopColor="#0f415f" />
+        </linearGradient>
+        <linearGradient id="metaChipCore" x1="0%" x2="100%" y1="0%" y2="0%">
+          <stop offset="0%" stopColor="#14435f" />
+          <stop offset="100%" stopColor="#1b5e80" />
+        </linearGradient>
+      </defs>
+
+      <g className="meta-chip">
+        <rect x="24" y="18" width="72" height="48" rx="10" fill="url(#metaChipBody)" stroke="#2ad5ff" strokeWidth="2" />
+        <rect x="37" y="30" width="46" height="24" rx="5" fill="url(#metaChipCore)" stroke="#84ecff" strokeWidth="1.5" />
+        <rect x="42" y="35" width="36" height="14" rx="3" fill="#0b2a3f" stroke="#62daf8" strokeWidth="1" />
+
+        <line x1="50" y1="26" x2="50" y2="30" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="60" y1="26" x2="60" y2="30" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.2s" }} />
+        <line x1="70" y1="26" x2="70" y2="30" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.4s" }} />
+
+        <line x1="50" y1="54" x2="50" y2="58" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="60" y1="54" x2="60" y2="58" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.2s" }} />
+        <line x1="70" y1="54" x2="70" y2="58" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.4s" }} />
+
+        <line x1="34" y1="40" x2="37" y2="40" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="34" y1="46" x2="37" y2="46" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.3s" }} />
+        <line x1="83" y1="40" x2="86" y2="40" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="83" y1="46" x2="86" y2="46" className="meta-trace" stroke="#47dfff" strokeWidth="1.8" strokeLinecap="round" style={{ animationDelay: "0.3s" }} />
+
+        <circle cx="48" cy="42" r="2.3" fill="#8ce8ff" className="meta-energy-dot" />
+        <circle cx="60" cy="42" r="2.5" fill="#c5f5ff" className="meta-energy-core" style={{ animationDelay: "0.15s" }} />
+        <circle cx="72" cy="42" r="2.3" fill="#8ce8ff" className="meta-energy-dot" style={{ animationDelay: "0.3s" }} />
+      </g>
+
+      <g stroke="#42dcff" strokeWidth="2" strokeLinecap="round">
+        <line x1="17" y1="28" x2="24" y2="28" />
+        <line x1="17" y1="38" x2="24" y2="38" />
+        <line x1="17" y1="48" x2="24" y2="48" />
+        <line x1="17" y1="58" x2="24" y2="58" />
+        <line x1="96" y1="28" x2="103" y2="28" />
+        <line x1="96" y1="38" x2="103" y2="38" />
+        <line x1="96" y1="48" x2="103" y2="48" />
+        <line x1="96" y1="58" x2="103" y2="58" />
+      </g>
+
+      <rect x="34" y="58" width="52" height="4" rx="2" fill="#1a4a63" opacity="0.85" />
+
+      <g className="meta-wheel">
+        <circle cx="43" cy="68" r="8" fill="#162434" />
+        <circle cx="43" cy="68" r="4.6" fill="#7edff7" />
+        <line x1="43" y1="60" x2="43" y2="76" stroke="#d6f7ff" strokeWidth="1.5" />
+        <line x1="35" y1="68" x2="51" y2="68" stroke="#d6f7ff" strokeWidth="1.5" />
+      </g>
+
+      <g className="meta-wheel">
+        <circle cx="77" cy="68" r="8" fill="#162434" />
+        <circle cx="77" cy="68" r="4.6" fill="#7edff7" />
+        <line x1="77" y1="60" x2="77" y2="76" stroke="#d6f7ff" strokeWidth="1.5" />
+        <line x1="69" y1="68" x2="85" y2="68" stroke="#d6f7ff" strokeWidth="1.5" />
+      </g>
+    </svg>
+  );
+}
+
+export function MetaCard({ title, meta, atual, empty = false, labType = "eletronico" }: MetaCardProps) {
   const percent = meta > 0 ? Math.min((atual / meta) * 100, 100) : 0;
   const showConfetti = percent >= 100;
+  const safePercent = empty ? 0 : percent;
+  const iconLeft = `${safePercent}%`;
+  const isMotor = labType === "motores";
 
   const confettiPieces = useMemo(
     () =>
@@ -91,11 +215,24 @@ export function MetaCard({ title, meta, atual, empty = false }: MetaCardProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
+      <div className="meta-progress-shell">
         <div
-          className={`h-full rounded-full transition-all duration-700 ease-out ${getColor()}`}
-          style={{ width: empty ? "0%" : `${percent}%` }}
-        />
+          className={`meta-progress-icon ${isMotor ? "meta-progress-icon--motor" : "meta-progress-icon--electronics"}`}
+          style={{ left: iconLeft }}
+          aria-hidden="true"
+        >
+          <span className="meta-icon-trail" />
+          <div className="meta-progress-icon-inner">
+            {isMotor ? <MotorIcon /> : <ElectronicsIcon />}
+          </div>
+        </div>
+
+        <div className="w-full bg-secondary rounded-full h-3 overflow-hidden border border-destructive/40 relative">
+          <div
+            className={`h-full rounded-full transition-all duration-700 ease-out ${getColor()} ${safePercent > 1 ? "meta-progress-fill-tip" : ""}`}
+            style={{ width: `${safePercent}%` }}
+          />
+        </div>
       </div>
     </div>
   );
