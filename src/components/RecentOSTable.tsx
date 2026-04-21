@@ -4,12 +4,12 @@ interface RecentOSTableProps {
   data: OSRecord[];
 }
 
-const STATUS_OS_ORDER = ["URGENTE", "PRONTO", "AGUARDANDO APROVACAO"] as const;
+const STATUS_OS_ORDER = ["URGENTE", "GARANTIA", "APROVADO"] as const;
 
 const STATUS_OS_THEME: Record<(typeof STATUS_OS_ORDER)[number], { label: string; classes: string }> = {
   URGENTE: { label: "Urgente", classes: "bg-destructive/20 text-destructive" },
-  PRONTO: { label: "Prontos", classes: "bg-success/20 text-success" },
-  "AGUARDANDO APROVACAO": { label: "Aguardando aprovação", classes: "bg-warning/20 text-warning" },
+  GARANTIA: { label: "Garantia", classes: "bg-warning/20 text-warning" },
+  APROVADO: { label: "Aprovado", classes: "bg-success/20 text-success" },
 };
 
 function normalizeStatus(value: string): string {
@@ -24,8 +24,8 @@ function getStatusOSBucket(status: string): (typeof STATUS_OS_ORDER)[number] | n
   const normalized = normalizeStatus(status);
 
   if (normalized.includes("URGENTE")) return "URGENTE";
-  if (normalized.includes("PRONTO")) return "PRONTO";
-  if (normalized.includes("AGUARDANDO") && normalized.includes("APROVACAO")) return "AGUARDANDO APROVACAO";
+  if (normalized.includes("GARANTIA")) return "GARANTIA";
+  if (normalized.includes("APROV")) return "APROVADO";
 
   return null;
 }
@@ -41,8 +41,8 @@ function getStatusOSLabel(status: string): string {
 function getStatusOSPriority(status: string): number {
   const bucket = getStatusOSBucket(status);
   if (bucket === "URGENTE") return 0;
-  if (bucket === "PRONTO") return 1;
-  if (bucket === "AGUARDANDO APROVACAO") return 2;
+  if (bucket === "GARANTIA") return 1;
+  if (bucket === "APROVADO") return 2;
   return 3;
 }
 
