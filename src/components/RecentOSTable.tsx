@@ -4,12 +4,22 @@ interface RecentOSTableProps {
   data: OSRecord[];
 }
 
-const STATUS_OS_ORDER = ["URGENTE", "GARANTIA", "APROVADO"] as const;
+const STATUS_OS_ORDER = [
+  "URGENTE",
+  "GARANTIA",
+  "APROVADO",
+  "AGUARDANDO ORCAMENTO",
+  "AGUARDANDO AVALIACAO",
+  "PROPOSTA ENVIADA PARA O CLIENTE",
+] as const;
 
 const STATUS_OS_THEME: Record<(typeof STATUS_OS_ORDER)[number], { label: string; classes: string }> = {
   URGENTE: { label: "Urgente", classes: "bg-destructive/20 text-destructive" },
   GARANTIA: { label: "Garantia", classes: "bg-warning/20 text-warning" },
   APROVADO: { label: "Aprovado", classes: "bg-success/20 text-success" },
+  "AGUARDANDO ORCAMENTO": { label: "Aguardando orçamento", classes: "bg-warning/20 text-warning" },
+  "AGUARDANDO AVALIACAO": { label: "Aguardando avaliação", classes: "bg-primary/15 text-primary" },
+  "PROPOSTA ENVIADA PARA O CLIENTE": { label: "Proposta enviada para o cliente", classes: "bg-secondary text-secondary-foreground" },
 };
 
 function normalizeStatus(value: string): string {
@@ -23,9 +33,14 @@ function normalizeStatus(value: string): string {
 function getStatusOSBucket(status: string): (typeof STATUS_OS_ORDER)[number] | null {
   const normalized = normalizeStatus(status);
 
-  if (normalized.includes("URGENTE")) return "URGENTE";
+  if (normalized.includes("URGENTE") || normalized.includes("URGENCIA")) return "URGENTE";
   if (normalized.includes("GARANTIA")) return "GARANTIA";
   if (normalized.includes("APROV")) return "APROVADO";
+  if (normalized.includes("AGUARDANDO") && normalized.includes("ORCAMENTO")) return "AGUARDANDO ORCAMENTO";
+  if (normalized.includes("AGUARDANDO") && normalized.includes("AVALIACAO")) return "AGUARDANDO AVALIACAO";
+  if (normalized.includes("PROPOSTA") && normalized.includes("ENVIADA") && normalized.includes("CLIENTE")) {
+    return "PROPOSTA ENVIADA PARA O CLIENTE";
+  }
 
   return null;
 }
@@ -43,7 +58,10 @@ function getStatusOSPriority(status: string): number {
   if (bucket === "URGENTE") return 0;
   if (bucket === "GARANTIA") return 1;
   if (bucket === "APROVADO") return 2;
-  return 3;
+  if (bucket === "AGUARDANDO ORCAMENTO") return 3;
+  if (bucket === "AGUARDANDO AVALIACAO") return 4;
+  if (bucket === "PROPOSTA ENVIADA PARA O CLIENTE") return 5;
+  return 6;
 }
 
 function statusBadge(status: string) {
@@ -68,7 +86,7 @@ function labBadge(status: string) {
 
 export function RecentOSTable({ data }: RecentOSTableProps) {
   const aguardando = data
-    .filter(os => os.statusLab.includes("AGUARDANDO"))
+    .filter(os => os.statusLab.includes("AGUARDANDO") || getStatusOSBucket(os.statusOS) !== null)
     .sort((a, b) => {
       const priorityDiff = getStatusOSPriority(a.statusOS) - getStatusOSPriority(b.statusOS);
       if (priorityDiff !== 0) return priorityDiff;

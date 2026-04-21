@@ -92,6 +92,12 @@ const SHEET_CSV_URL =
 const META_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?gid=151603371&single=true&output=csv";
 
+const OS_SHEET_GIDS = [234044428, 956684419, 974906544] as const;
+
+function getOsSheetCsvUrl(gid: number): string {
+  return `https://docs.google.com/spreadsheets/d/e/2PACX-1vQpza0h0T--mGQ1SdcS4bkHkPjAROf08dyweBAxJ1tACGGBH2EqGZsez4UUuDLCFNTdQ8J5ehpWIB9s/pub?gid=${gid}&single=true&output=csv`;
+}
+
 export interface MetaRecord {
   meta: number;
   atual: number;
@@ -176,25 +182,39 @@ function parseCSVLine(line: string): string[] {
 }
 
 export async function fetchOSData(): Promise<OSRecord[]> {
-  const res = await fetch(withCacheBuster(SHEET_CSV_URL), { cache: "no-store" });
-  const text = await res.text();
-  const lines = text.split("\n").filter(l => l.trim());
-  // skip header
-  return lines.slice(1).map(line => {
-    const cols = parseCSVLine(line);
-    return {
-      numero: cols[0] ?? "",
-      seq: cols[1] ?? "",
-      statusLab: cols[2] ?? "",
-      statusOS: cols[3] ?? "",
-      emissao: cols[4] ?? "",
-      descricao: cols[5] ?? "",
-      razaoSocial: cols[6] ?? "",
-      numSerie: cols[7] ?? "",
-      baseAtivo: cols[8] ?? "",
-      categoriaOS: cols[9] ?? "",
-      cidade: cols[10] ?? "",
-      uf: cols[11] ?? "",
-    };
-  });
+  try {
+    const responses = await Promise.all(
+      OS_SHEET_GIDS.map(async gid => {
+        const url = getOsSheetCsvUrl(gid);
+        const res = await fetch(withCacheBuster(url), { cache: "no-store" });
+        const text = await res.text();
+        const lines = text.split("\n").filter(l => l.trim());
+
+        return lines.slice(1).map(line => {
+          const cols = parseCSVLine(line);
+          return {
+            numero: cols[0] ?? "",
+            seq: cols[1] ?? "",
+            statusLab: cols[2] ?? "",
+            statusOS: cols[3] ?? "",
+            emissao: cols[4] ?? "",
+            descricao: cols[5] ?? "",
+            razaoSocial: cols[6] ?? "",
+            numSerie: cols[7] ?? "",
+            baseAtivo: cols[8] ?? "",
+            categoriaOS: cols[9] ?? "",
+            cidade: cols[10] ?? "",
+            uf: cols[11] ?? "",
+          };
+        });
+      }),
+    );
+
+    const records = responses.flat();
+    console.log(`Total de registros carregados das ${OS_SHEET_GIDS.length} abas de OS: ${records.length}`);
+    return records;
+  } catch (error) {
+    console.error("Erro ao buscar dados de OS:", error);
+    return [];
+  }
 }
