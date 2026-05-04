@@ -17,7 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 const marqueeMessages = [
-  "🎂 Parabéns aos funcionário aniversariantes do mes de Abril.",
+  "🎂 Parabéns aos aniversariantes do mes de Maio.",
   "🛡️ Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
   "📋 Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
   "✨ Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",

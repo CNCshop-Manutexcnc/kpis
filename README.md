@@ -63,6 +63,22 @@ npm run lint
 - Mesmo rodando localmente, os dados continuam vindo das URLs definidas no codigo.
 - Arquivo de referencia: `src/data/osData.ts`.
 
+## Texto do Banner
+
+O texto do banner (marquee rolante) fica em `src/pages/Index.tsx`, na variável `marqueeMessages`:
+
+```typescript
+const marqueeMessages = [
+  "🎂 Parabéns aos funcionário aniversariantes do mes de Abril.",
+  "🛡️ Segurança primeiro: confira a bancada, os cabos e os EPI antes de iniciar qualquer teste.",
+  "📋 Laboratório organizado, equipe protegida e diagnóstico mais rápido.",
+  "✨ Seu cuidado hoje evita retrabalho amanhã. Mantenha o padrão de excelência.",
+  "⚡ Antes de energizar um equipamento, revise conexões, isolamento e aterramento.",
+];
+```
+
+Para editar as mensagens do banner, simplesmente modifique os textos dentro dessa array. As mudanças aparecerão imediatamente ao salvar e recarregar o navegador.
+
 ## Guia Rápido de Versionamento
 
 Este projeto usa Conventional Commits + Release Please para versionamento SemVer automatizado.
