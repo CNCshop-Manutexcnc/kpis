@@ -196,11 +196,6 @@ export function MetaCard({ title, meta, atual, empty = false, labType = "eletron
           <p className="text-3xl xl:text-5xl font-bold font-mono text-foreground">
             {empty ? "—" : `${percent.toFixed(1)}%`}
           </p>
-          {!empty && (
-            <p className="text-sm text-muted-foreground">
-              {atual} / {meta}
-            </p>
-          )}
           <p className={`text-sm xl:text-base font-medium flex items-center gap-1.5 ${getLabelClass()}`}>
             {empty ? (
               <span>Sem fonte de dados</span>
