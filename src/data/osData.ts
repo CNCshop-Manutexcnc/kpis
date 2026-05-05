@@ -114,8 +114,8 @@ function withCacheBuster(url: string): string {
 }
 
 function parseNumber(str: string): number {
-  // handles "435.750,00" → 435750.00
-  return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+  // handles plain numbers like "435750"
+  return parseFloat(str) || 0;
 }
 
 export async function fetchMetaData(): Promise<MetaSheetData> {
